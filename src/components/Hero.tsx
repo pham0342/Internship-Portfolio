@@ -22,7 +22,7 @@ export function Hero() {
           className="flex flex-col gap-6"
         >
           <span className="w-fit rounded-full border border-accent/40 bg-accent-soft px-3 py-1 font-mono text-[11px] uppercase tracking-widest text-accent">
-            Available from September 2026
+            Available now
           </span>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tighter leading-[1.05] text-zinc-50">

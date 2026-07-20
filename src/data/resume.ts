@@ -3,7 +3,7 @@ export const profile = {
   preferredName: "Phat",
   displayName: "Phat Pham",
   title: "Software Engineering (Honours) Student",
-  tagline: "Seeking a 20-week industry placement, available from September 2026.",
+  tagline: "Seeking a 20-week industry placement, available now.",
   location: "Adelaide, South Australia",
   email: "phamphat844@gmail.com",
   phone: "+61 434 475 790",
