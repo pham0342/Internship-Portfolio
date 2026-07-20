@@ -4,7 +4,6 @@ import { RoundedBox, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { techStack, type TechKey } from "../data/techStack";
 
-const ACCENT = "#e8823a";
 const COLUMNS = 4;
 const GAP = 1.08;
 
@@ -20,6 +19,14 @@ function usePrefersReducedMotion() {
   return reduced;
 }
 
+function relativeLuminance(hex: string) {
+  const c = hex.replace("#", "");
+  const r = parseInt(c.slice(0, 2), 16) / 255;
+  const g = parseInt(c.slice(2, 4), 16) / 255;
+  const b = parseInt(c.slice(4, 6), 16) / 255;
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
 function makeKeyTexture(key: TechKey) {
   const size = 320;
   const canvas = document.createElement("canvas");
@@ -27,10 +34,13 @@ function makeKeyTexture(key: TechKey) {
   canvas.height = size;
   const ctx = canvas.getContext("2d")!;
 
-  ctx.fillStyle = "#1c1c1f";
+  const textColor = relativeLuminance(key.color) > 0.55 ? "#111113" : "#fafafa";
+  const dotOffColor = relativeLuminance(key.color) > 0.55 ? "rgba(17,17,19,0.28)" : "rgba(250,250,250,0.28)";
+
+  ctx.fillStyle = key.color;
   ctx.fillRect(0, 0, size, size);
 
-  ctx.fillStyle = "#fafafa";
+  ctx.fillStyle = textColor;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
@@ -49,7 +59,7 @@ function makeKeyTexture(key: TechKey) {
   for (let i = 0; i < 3; i++) {
     ctx.beginPath();
     ctx.arc(startX + i * dotSpacing, dotY, 7, 0, Math.PI * 2);
-    ctx.fillStyle = i < key.level ? ACCENT : "#4b4b52";
+    ctx.fillStyle = i < key.level ? textColor : dotOffColor;
     ctx.fill();
   }
 
@@ -92,7 +102,7 @@ function Key({
     >
       <group ref={groupRef}>
         <RoundedBox args={[0.92, 0.28, 0.92]} radius={0.07} smoothness={4}>
-          <meshStandardMaterial color="#27272a" roughness={0.5} metalness={0.15} />
+          <meshStandardMaterial color={data.color} roughness={0.45} metalness={0.1} />
         </RoundedBox>
         <mesh position={[0, 0.145, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[0.82, 0.82]} />
@@ -114,14 +124,14 @@ function Keyboard() {
 
   useFrame(() => {
     if (!groupRef.current || reduced) return;
-    const targetY = pointer.x * 0.18;
-    const targetX = -0.35 + pointer.y * 0.05;
+    const targetY = pointer.x * 0.1;
+    const targetX = pointer.y * 0.04;
     groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetY, 0.03);
     groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetX, 0.03);
   });
 
   return (
-    <group ref={groupRef} rotation={[-0.35, 0, 0]}>
+    <group ref={groupRef}>
       {techStack.map((key, i) => {
         const col = i % COLUMNS;
         const row = Math.floor(i / COLUMNS);
@@ -141,13 +151,14 @@ export function TechStackKeys() {
   return (
     <div className="absolute inset-0">
       <Canvas
+        orthographic
         dpr={[1, 1.5]}
-        camera={{ position: [0, 4.6, 4.4], fov: 32 }}
+        camera={{ position: [4.4, 4.8, 4.4], zoom: 95, near: 0.1, far: 50 }}
         gl={{ antialias: true, alpha: true }}
       >
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[3, 5, 3]} intensity={1.2} />
-        <Environment preset="city" environmentIntensity={0.35} />
+        <ambientLight intensity={0.7} />
+        <directionalLight position={[3, 5, 3]} intensity={1.1} />
+        <Environment preset="city" environmentIntensity={0.3} />
         <Keyboard />
       </Canvas>
     </div>
